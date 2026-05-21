@@ -1,6 +1,6 @@
 {
   "name": "genio-nextjs-sanity-kit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Reusable Sanity, schema, SEO, and publishing primitives for Next.js sites.",
   "repository": {
     "type": "git",
