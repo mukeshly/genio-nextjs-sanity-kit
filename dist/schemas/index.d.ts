@@ -42,6 +42,7 @@ export declare function createSchemaTypes(options?: {
         subtitle: string;
         media: string;
         featured: string;
+        postType: string;
     }, any> | undefined;
 }) | ({
     type: "document";

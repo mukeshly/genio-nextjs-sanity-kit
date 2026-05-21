@@ -48,6 +48,19 @@ export const postSchema = defineType({
             initialValue: false,
         }),
         defineField({
+            name: "postType",
+            title: "Post type",
+            type: "string",
+            initialValue: "article",
+            options: {
+                list: [
+                    { title: "Article", value: "article" },
+                    { title: "Pillar", value: "pillar" },
+                ],
+            },
+            validation: (rule) => rule.required(),
+        }),
+        defineField({
             name: "author",
             title: "Author",
             type: "reference",
@@ -192,12 +205,15 @@ export const postSchema = defineType({
             subtitle: "category.title",
             media: "coverImage",
             featured: "featured",
+            postType: "postType",
         },
-        prepare({ featured, media, subtitle, title }) {
+        prepare({ featured, media, postType, subtitle, title }) {
             const baseSubtitle = subtitle || "Blog Post";
             return {
                 title,
-                subtitle: featured ? `${baseSubtitle} • Featured` : baseSubtitle,
+                subtitle: [baseSubtitle, postType === "pillar" ? "Pillar" : null, featured ? "Featured" : null]
+                    .filter(Boolean)
+                    .join(" • "),
                 media,
             };
         },

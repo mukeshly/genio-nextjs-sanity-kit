@@ -53,6 +53,8 @@ export type CategoryReference = {
 
 export type CategoryValue = CategoryReference | string;
 
+export type PostType = "article" | "pillar";
+
 export type SeoFields = {
   metaDescription?: string;
   metaTitle?: string;
@@ -79,6 +81,7 @@ export type BlogPostDocument = {
   };
   description: string;
   featured?: boolean;
+  postType: PostType;
   publishedAt: string;
   slug: string;
   tags?: string[];

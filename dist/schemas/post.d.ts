@@ -7,6 +7,7 @@ export declare const postSchema: {
         subtitle: string;
         media: string;
         featured: string;
+        postType: string;
     }, any> | undefined;
 };
 //# sourceMappingURL=post.d.ts.map

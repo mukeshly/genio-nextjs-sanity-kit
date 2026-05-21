@@ -16,7 +16,8 @@
     "node": ">=20"
   },
   "files": [
-    "dist"
+    "dist",
+    "scripts"
   ],
   "exports": {
     ".": {
@@ -85,6 +86,7 @@
     "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('dist', { recursive: true, force: true }))\"",
     "build": "npm run clean && tsc -p tsconfig.json",
     "check": "tsc --noEmit -p tsconfig.json",
+    "migrate:post-type": "node ./scripts/migrate-post-type.mjs",
     "pack:dry-run": "npm pack --dry-run",
     "prepack": "npm run build"
   }

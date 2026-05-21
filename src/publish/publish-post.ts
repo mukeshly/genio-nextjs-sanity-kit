@@ -219,6 +219,7 @@ async function doPublishBlogPost(env: NodeJS.ProcessEnv, input: ValidatedPublish
     },
     oldSlugs,
     excerpt: input.excerpt,
+    postType: input.postType,
     category: {
       _type: "reference",
       _ref: categoryId,

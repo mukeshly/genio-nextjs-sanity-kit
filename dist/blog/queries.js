@@ -18,6 +18,7 @@ export const BLOG_POSTS_QUERY = defineQuery(`
       null
     ),
     featured,
+    "postType": coalesce(postType, "article"),
     tags,
     publishedAt,
     author->{
@@ -54,6 +55,7 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(`
       null
     ),
     featured,
+    "postType": coalesce(postType, "article"),
     tags,
     publishedAt,
     author->{
@@ -90,6 +92,7 @@ export const BLOG_POST_BY_OLD_SLUG_QUERY = defineQuery(`
       null
     ),
     featured,
+    "postType": coalesce(postType, "article"),
     tags,
     publishedAt,
     author->{

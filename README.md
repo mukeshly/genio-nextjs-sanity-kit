@@ -2,7 +2,7 @@
 
 Reusable Sanity, schema, SEO, and publishing primitives for Next.js sites.
 
-This package is intended to hold the shared CMS layer used by client sites such as `Noonvilla-website`.
+This package provides a shared CMS layer that can be reused across multiple client projects.
 
 ## Package Structure
 
@@ -39,7 +39,7 @@ npm run build
 
 `npm pack` will rebuild automatically through `prepack`.
 
-## Install In Client Sites
+## Install In Consuming Sites
 
 Recommended install model for public GitHub consumption:
 
@@ -79,7 +79,7 @@ git tag v0.1.1
 git push origin main --tags
 ```
 
-## Recommended Noonvilla Integration
+## Recommended Integration
 
 ### 1. Centralize Sanity env
 
@@ -103,7 +103,7 @@ export const schemaTypes = createSchemaTypes({
 });
 ```
 
-`Noonvilla-website` currently does not expose category or site settings types in Studio, so those flags keep the generated schema aligned with the existing app shape.
+Set `includeCategory` and `includeSiteSettings` to match the Sanity Studio shape used by the consuming app. Disable them when those document types are still managed locally or are not yet part of the shared schema.
 
 ### 3. Replace duplicated blog/page helpers
 
@@ -113,12 +113,12 @@ import { createSiteToolkit } from "genio-nextjs-sanity-kit/site";
 const cms = createSiteToolkit({
   sanity: sanityConfig,
   defaultAuthorName: siteConfig.name,
-  fallbackCategoryLabel: "Noon Villa Guide",
+  fallbackCategoryLabel: "Editorial",
   fallbackImage: siteConfig.defaultOgImage,
-  locale: "en-IN",
-  reservedRootSlugs: ["location", "menu", "stay"],
+  locale: "en-US",
+  reservedRootSlugs: ["about", "contact"],
   siteUrl: siteConfig.siteUrl,
-  timeZone: "Asia/Kolkata",
+  timeZone: "UTC",
 });
 ```
 
@@ -157,10 +157,45 @@ That exposes:
 - `publish.publishPage(payload)`
 - `publish.createSanityWriteClient()`
 
+`publishBlogPost(payload)` accepts an optional `postType` of `"article"` or `"pillar"` and defaults to `"article"` when omitted. Both post types are modeled as Sanity `post` documents. Use `publishPage(payload)` only for true standalone CMS pages.
+
 Do not import server helpers from the package root. The root export surface is intentionally client-safe.
+
+## Migrating Existing Posts
+
+If a dataset already has `post` documents created before `postType` was added, backfill them before editors start updating old posts in Studio. The read-side blog queries already fall back to `"article"` for missing values, so the safe rollout order is:
+
+1. Deploy the kit version that includes the read-side `postType` fallback.
+2. Run the migration script against each Sanity dataset.
+3. Confirm no posts are left without `postType`.
+4. Let editors resume updating older posts normally.
+
+Dry run:
+
+```bash
+SANITY_PROJECT_ID=... \
+SANITY_DATASET=... \
+SANITY_API_WRITE_TOKEN=... \
+npm run migrate:post-type
+```
+
+Apply changes:
+
+```bash
+SANITY_PROJECT_ID=... \
+SANITY_DATASET=... \
+SANITY_API_WRITE_TOKEN=... \
+npm run migrate:post-type -- --write
+```
+
+Verification query:
+
+```groq
+*[_type == "post" && !defined(postType)]{ _id, title }
+```
 
 ## Notes
 
 - The package expects `next`, `react`, `react-dom`, `next-sanity`, and `sanity` to be provided by the consuming app.
-- The shared read-side blog helpers now tolerate both legacy string categories and referenced category documents, which lets `Noonvilla-website` adopt the package before fully migrating its Studio schema.
-- The shared publish helpers still create category references. If Noonvilla moves its publish route onto the shared publish flow, its Studio schema should also adopt the shared category document model.
+- The shared read-side blog helpers tolerate both legacy string categories and referenced category documents, which helps teams adopt the package before fully migrating their Studio schema.
+- The shared publish helpers create category references. If a consuming app moves its publish route onto the shared publish flow, its Studio schema should also adopt the shared category document model.

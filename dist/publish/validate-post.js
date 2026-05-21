@@ -23,6 +23,7 @@ export function validatePublishBlogInput(input) {
     const coverImageAlt = assertString(input.coverImageAlt, "coverImageAlt", 5);
     const authorName = assertString(input.authorName, "authorName", 2);
     const category = assertString(input.category, "category", 2).slice(0, 60);
+    const postType = input.postType === "pillar" ? "pillar" : "article";
     return {
         documentId: typeof input.documentId === "string" && input.documentId.trim()
             ? input.documentId.trim()
@@ -38,6 +39,7 @@ export function validatePublishBlogInput(input) {
             : "Editorial Team",
         category,
         featured: Boolean(input.featured),
+        postType,
         publishedAt: typeof input.publishedAt === "string" && input.publishedAt.trim()
             ? new Date(input.publishedAt).toISOString()
             : new Date().toISOString(),

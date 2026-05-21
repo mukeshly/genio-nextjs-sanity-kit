@@ -1,4 +1,4 @@
-import type { PortableTextBlock } from "./blog.js";
+import type { PortableTextBlock, PostType } from "./blog.js";
 export type PublishBlogInput = {
     authorName: string;
     authorRole?: string;
@@ -9,6 +9,7 @@ export type PublishBlogInput = {
     documentId?: string;
     excerpt: string;
     featured?: boolean;
+    postType?: PostType;
     publishedAt?: string;
     seo?: {
         metaDescription?: string;
@@ -56,6 +57,7 @@ export type ValidatedPublishBlogInput = Omit<PublishBlogInput, "category"> & {
     authorRole: string;
     category: string;
     featured: boolean;
+    postType: PostType;
     publishedAt: string;
     seo: NonNullable<PublishBlogInput["seo"]>;
     slug: string;

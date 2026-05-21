@@ -164,6 +164,7 @@ async function doPublishBlogPost(env, input) {
         },
         oldSlugs,
         excerpt: input.excerpt,
+        postType: input.postType,
         category: {
             _type: "reference",
             _ref: categoryId,

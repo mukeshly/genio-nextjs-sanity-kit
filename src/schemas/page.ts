@@ -2,7 +2,7 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 
 export const pageSchema = defineType({
   name: "page",
-  title: "Page",
+  title: "Site Page",
   type: "document",
   fields: [
     defineField({
