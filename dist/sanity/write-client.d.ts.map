@@ -1,0 +1,1 @@
+{"version":3,"file":"write-client.d.ts","sourceRoot":"","sources":["../../src/sanity/write-client.ts"],"names":[],"mappings":"AAAA,OAAO,aAAa,CAAC;AAErB,OAAO,KAAK,EAAE,YAAY,EAAE,YAAY,EAAE,MAAM,gBAAgB,CAAC;AAGjE,wBAAgB,uBAAuB,CACrC,GAAG,EAAE,MAAM,CAAC,UAAU,EACtB,SAAS,GAAE,OAAO,CAAC,YAAY,CAAM,GACpC,YAAY,CAWd"}

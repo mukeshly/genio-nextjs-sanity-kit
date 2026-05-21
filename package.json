@@ -1,0 +1,91 @@
+{
+  "name": "genio-nextjs-sanity-kit",
+  "version": "0.1.0",
+  "description": "Reusable Sanity, schema, SEO, and publishing primitives for Next.js sites.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mukeshly/genio-nextjs-sanity-kit.git"
+  },
+  "homepage": "https://github.com/mukeshly/genio-nextjs-sanity-kit",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./sanity": {
+      "types": "./dist/sanity/index.d.ts",
+      "default": "./dist/sanity/index.js"
+    },
+    "./sanity/server": {
+      "types": "./dist/sanity/server.d.ts",
+      "default": "./dist/sanity/server.js"
+    },
+    "./site": {
+      "types": "./dist/site/index.d.ts",
+      "default": "./dist/site/index.js"
+    },
+    "./site/server": {
+      "types": "./dist/site/server.d.ts",
+      "default": "./dist/site/server.js"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/index.d.ts",
+      "default": "./dist/schemas/index.js"
+    },
+    "./blog": {
+      "types": "./dist/blog/index.d.ts",
+      "default": "./dist/blog/index.js"
+    },
+    "./pages": {
+      "types": "./dist/pages/index.d.ts",
+      "default": "./dist/pages/index.js"
+    },
+    "./publish": {
+      "types": "./dist/publish/index.d.ts",
+      "default": "./dist/publish/index.js"
+    },
+    "./seo": {
+      "types": "./dist/seo/index.d.ts",
+      "default": "./dist/seo/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "next": "^15.0.0 || ^16.0.0",
+    "next-sanity": "^11.0.0 || ^12.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sanity": "^4.0.0 || ^5.0.0"
+  },
+  "dependencies": {
+    "@portabletext/react": "^6.0.3",
+    "@sanity/client": "^7.13.2",
+    "@sanity/image-url": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('dist', { recursive: true, force: true }))\"",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "pack:dry-run": "npm pack --dry-run",
+    "prepack": "npm run build"
+  }
+}
