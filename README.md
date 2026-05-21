@@ -6,27 +6,27 @@ This package provides a shared CMS layer that can be reused across multiple clie
 
 ## Package Structure
 
-- `genio-nextjs-sanity-kit`
+- `@vibeshipteam/genio-nextjs-sanity-kit`
   Client-safe root exports for shared types, read-client helpers, schemas, blog/page queries, and SEO helpers.
-- `genio-nextjs-sanity-kit/sanity`
+- `@vibeshipteam/genio-nextjs-sanity-kit/sanity`
   Sanity environment, read-client, and image URL helpers.
-- `genio-nextjs-sanity-kit/sanity/server`
+- `@vibeshipteam/genio-nextjs-sanity-kit/sanity/server`
   Server-only write client helpers.
-- `genio-nextjs-sanity-kit/site`
+- `@vibeshipteam/genio-nextjs-sanity-kit/site`
   Env-bound read-side adapters that expose blog, page, and image helpers without passing a client around on every call.
-- `genio-nextjs-sanity-kit/site/server`
+- `@vibeshipteam/genio-nextjs-sanity-kit/site/server`
   Env-bound server adapters for publish routes and write-client access.
-- `genio-nextjs-sanity-kit/blog`
+- `@vibeshipteam/genio-nextjs-sanity-kit/blog`
   Blog queries and transforms.
-- `genio-nextjs-sanity-kit/pages`
+- `@vibeshipteam/genio-nextjs-sanity-kit/pages`
   Site page queries and transforms.
-- `genio-nextjs-sanity-kit/publish`
+- `@vibeshipteam/genio-nextjs-sanity-kit/publish`
   Server-only publishing helpers for posts and pages.
-- `genio-nextjs-sanity-kit/schemas`
+- `@vibeshipteam/genio-nextjs-sanity-kit/schemas`
   Shared Sanity schema definitions.
-- `genio-nextjs-sanity-kit/seo`
+- `@vibeshipteam/genio-nextjs-sanity-kit/seo`
   Metadata and schema helpers.
-- `genio-nextjs-sanity-kit/types`
+- `@vibeshipteam/genio-nextjs-sanity-kit/types`
   Shared TypeScript contracts.
 
 ## Build
@@ -46,7 +46,7 @@ Recommended install model for public GitHub consumption:
 ```json
 {
   "dependencies": {
-    "genio-nextjs-sanity-kit": "git+https://github.com/mukeshly/genio-nextjs-sanity-kit.git#v0.1.0"
+    "@vibeshipteam/genio-nextjs-sanity-kit": "^0.3.0"
   }
 }
 ```
@@ -84,7 +84,7 @@ git push origin main --tags
 ### 1. Centralize Sanity env
 
 ```ts
-import { getSanityEnvConfig, hasSanityConfig } from "genio-nextjs-sanity-kit/sanity";
+import { getSanityEnvConfig, hasSanityConfig } from "@vibeshipteam/genio-nextjs-sanity-kit/sanity";
 
 export const sanityConfig = getSanityEnvConfig(process.env);
 export const sanityConnected = hasSanityConfig(sanityConfig);
@@ -95,7 +95,7 @@ Use `createOptionalSanityReadClient(sanityConfig)` when the site should tolerate
 ### 2. Replace local schema assembly
 
 ```ts
-import { createSchemaTypes } from "genio-nextjs-sanity-kit/schemas";
+import { createSchemaTypes } from "@vibeshipteam/genio-nextjs-sanity-kit/schemas";
 
 export const schemaTypes = createSchemaTypes({
   includeCategory: false,
@@ -108,7 +108,7 @@ Set `includeCategory` and `includeSiteSettings` to match the Sanity Studio shape
 ### 3. Replace duplicated blog/page helpers
 
 ```ts
-import { createSiteToolkit } from "genio-nextjs-sanity-kit/site";
+import { createSiteToolkit } from "@vibeshipteam/genio-nextjs-sanity-kit/site";
 
 const cms = createSiteToolkit({
   sanity: sanityConfig,
@@ -144,7 +144,7 @@ The shared query layer and adapter support:
 ### 4. Move publish routes to server-only imports
 
 ```ts
-import { createPublishToolkit } from "genio-nextjs-sanity-kit/site/server";
+import { createPublishToolkit } from "@vibeshipteam/genio-nextjs-sanity-kit/site/server";
 
 const publish = createPublishToolkit(process.env);
 ```
