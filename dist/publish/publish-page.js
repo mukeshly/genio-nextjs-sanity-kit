@@ -1,6 +1,6 @@
 import { createSanityWriteClient } from "../sanity/write-client.js";
 import { slugify } from "../utils/slugs.js";
-import { markdownToPortableText } from "./publish-post.js";
+import { markdownToPortableText } from "./portable-text.js";
 import { validatePublishPageInput } from "./validate-page.js";
 async function uploadRemoteImage(env, imageUrl) {
     const response = await fetch(imageUrl);
@@ -48,7 +48,15 @@ function buildOldSlugs(existing, nextSlug) {
 }
 async function doPublishPage(env, input) {
     const client = createSanityWriteClient(env);
-    const body = markdownToPortableText(input.bodyMarkdown);
+    const body = await markdownToPortableText(input.bodyMarkdown, {
+        uploadImage: async (imageUrl) => {
+            const imageAsset = await uploadRemoteImage(env, imageUrl);
+            return {
+                _type: "reference",
+                _ref: imageAsset._id,
+            };
+        },
+    });
     const imageAsset = await uploadRemoteImage(env, input.coverImageUrl);
     const authorId = await createOrUpdateAuthor(env, input.authorName, input.authorRole);
     const existing = await findExistingPage(env, input.documentId, input.slug);

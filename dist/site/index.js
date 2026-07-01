@@ -1,4 +1,4 @@
-import { getAllBlogPosts, getBlogCoverImageUrl as getConfiguredBlogCoverImageUrl, getBlogPostByOldSlug, getBlogPostBySlug, getBlogPostPlainText, getBlogPostSlugs, getSanityImageUrl as getConfiguredSanityImageUrl, } from "../blog/index.js";
+import { getAllBlogPosts, getBlogBodyImageUrl, getBlogCoverImageUrl as getConfiguredBlogCoverImageUrl, getBlogPostByOldSlug, getBlogPostBySlug, getBlogPostPlainText, getBlogPostSlugs, getSanityImageUrl as getConfiguredSanityImageUrl, normalizeBlogPostBody, } from "../blog/index.js";
 import { getAllSitePages, getPageBodyImageUrl, getSitePageByOldSlug, getSitePageBySlug, getSitePageCoverImageUrl as getConfiguredPageCoverImageUrl, getSitePagePlainText, getSitePageSlugs, } from "../pages/index.js";
 import { createOptionalSanityReadClient, createSanityReadClient, } from "../sanity/client.js";
 function getImageConfig(config) {
@@ -9,9 +9,11 @@ function getImageConfig(config) {
 }
 function getSharedQueryOptions(options) {
     return {
+        dataset: options.sanity.dataset,
         defaultAuthorName: options.defaultAuthorName,
         fallbackCategoryLabel: options.fallbackCategoryLabel,
         locale: options.locale,
+        projectId: options.sanity.projectId,
         revalidate: options.revalidate,
         reservedRootSlugs: options.reservedRootSlugs,
         timeZone: options.timeZone,
@@ -41,6 +43,9 @@ export function createSiteToolkit(options) {
                 siteUrl: options.siteUrl,
             });
         },
+        getBlogBodyImageUrl(source, width, height) {
+            return getBlogBodyImageUrl(imageConfig, source, width, height);
+        },
         getPageCoverImageUrl(page, imageOptions = {}) {
             return getConfiguredPageCoverImageUrl(imageConfig, page, {
                 absoluteFallback: imageOptions.absoluteFallback,
@@ -50,6 +55,9 @@ export function createSiteToolkit(options) {
         },
         getPageBodyImageUrl(source, width, height) {
             return getPageBodyImageUrl(imageConfig, source, width, height);
+        },
+        normalizeBlogPostBody(blocks) {
+            return normalizeBlogPostBody(imageConfig, blocks);
         },
         getBlogPostPlainText,
         getSitePagePlainText,

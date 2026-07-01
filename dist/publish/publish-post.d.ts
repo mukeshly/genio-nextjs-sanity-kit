@@ -1,5 +1,4 @@
-import type { PortableTextBlock, PublishBlogInput, PublishBlogResult } from "../types/index.js";
-export declare function markdownToPortableText(markdown: string): PortableTextBlock[];
+import type { PublishBlogInput, PublishBlogResult } from "../types/index.js";
 export declare function publishBlogPost({ env, input, }: {
     env: NodeJS.ProcessEnv;
     input: PublishBlogInput | unknown;

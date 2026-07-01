@@ -1,4 +1,4 @@
-import type { PortableTextBlock, PostType } from "./blog.js";
+import type { PortableTextNode, PostType } from "./blog.js";
 export type PublishBlogInput = {
     authorName: string;
     authorRole?: string;
@@ -71,5 +71,5 @@ export type ValidatedPublishPageInput = Omit<PublishPageInput, "authorRole"> & {
     slug: string;
     tags: string[];
 };
-export type PortableTextBlocks = PortableTextBlock[];
+export type PortableTextBlocks = PortableTextNode[];
 //# sourceMappingURL=publish.d.ts.map

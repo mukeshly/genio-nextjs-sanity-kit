@@ -1,12 +1,14 @@
 import type { SanityClient } from "next-sanity";
 import {
   getAllBlogPosts,
+  getBlogBodyImageUrl,
   getBlogCoverImageUrl as getConfiguredBlogCoverImageUrl,
   getBlogPostByOldSlug,
   getBlogPostBySlug,
   getBlogPostPlainText,
   getBlogPostSlugs,
   getSanityImageUrl as getConfiguredSanityImageUrl,
+  normalizeBlogPostBody,
 } from "../blog/index.js";
 import {
   getAllSitePages,
@@ -53,9 +55,11 @@ function getImageConfig(config: Partial<SanityEnvConfig>) {
 
 function getSharedQueryOptions(options: SiteToolkitOptions) {
   return {
+    dataset: options.sanity.dataset,
     defaultAuthorName: options.defaultAuthorName,
     fallbackCategoryLabel: options.fallbackCategoryLabel,
     locale: options.locale,
+    projectId: options.sanity.projectId,
     revalidate: options.revalidate,
     reservedRootSlugs: options.reservedRootSlugs,
     timeZone: options.timeZone,
@@ -106,6 +110,9 @@ export function createSiteToolkit(options: SiteToolkitOptions) {
         siteUrl: options.siteUrl,
       });
     },
+    getBlogBodyImageUrl(source: PortableTextImage | null | undefined, width: number, height: number) {
+      return getBlogBodyImageUrl(imageConfig, source, width, height);
+    },
     getPageCoverImageUrl(
       page: Pick<SitePageDocument, "coverImage">,
       imageOptions: AbsoluteImageFallbackOptions = {},
@@ -118,6 +125,9 @@ export function createSiteToolkit(options: SiteToolkitOptions) {
     },
     getPageBodyImageUrl(source: Parameters<typeof getPageBodyImageUrl>[1], width: number, height: number) {
       return getPageBodyImageUrl(imageConfig, source, width, height);
+    },
+    normalizeBlogPostBody(blocks: BlogPostDocument["body"] | null | undefined) {
+      return normalizeBlogPostBody(imageConfig, blocks);
     },
     getBlogPostPlainText,
     getSitePagePlainText,

@@ -12,12 +12,15 @@ function getCategoryLabel(category, fallbackCategoryLabel) {
 }
 export function toBlogPostSummary(post, options) {
     const wasUpdated = isMeaningfullyUpdated(post.publishedAt, post._updatedAt);
+    const imageConfig = options?.projectId && options?.dataset
+        ? { dataset: options.dataset, projectId: options.projectId }
+        : null;
     return {
         ...post,
         author: post.author || {
             name: options?.defaultAuthorName || "Editorial Team",
         },
-        body: post.body || [],
+        body: imageConfig ? normalizeBlogPostBody(imageConfig, post.body) : (post.body || []),
         content: post.content || null,
         categoryLabel: getCategoryLabel(post.category, options?.fallbackCategoryLabel),
         publishedLabel: formatPublishedDate(post.publishedAt, options?.locale, options?.timeZone),
@@ -30,6 +33,22 @@ export function toBlogPostSummary(post, options) {
 }
 export function getBlogPostPlainText(blocks, htmlContent) {
     return getPortableTextPlainText(blocks, htmlContent);
+}
+export function normalizeBlogPostBody(config, blocks) {
+    if (!Array.isArray(blocks)) {
+        return [];
+    }
+    return blocks.map((block) => {
+        if (!block || block._type !== "image") {
+            return block;
+        }
+        const resolvedUrl = buildSanityImageUrl(config, block, 1600, 900);
+        return {
+            ...block,
+            url: block._seoImageUrl || block.url || resolvedUrl || undefined,
+            _seoImageUrl: block._seoImageUrl || block.url || resolvedUrl || undefined,
+        };
+    });
 }
 export function getBlogCoverImageUrl(config, post, options = {}) {
     if (post.coverImage?.asset?._ref) {
@@ -44,4 +63,7 @@ export function getBlogCoverImageUrl(config, post, options = {}) {
 }
 export function getSanityImageUrl(config, source, width, height) {
     return buildSanityImageUrl(config, source, width, height);
+}
+export function getBlogBodyImageUrl(config, source, width, height) {
+    return source ? buildSanityImageUrl(config, source, width, height) : null;
 }

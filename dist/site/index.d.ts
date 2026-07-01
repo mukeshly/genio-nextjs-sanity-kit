@@ -23,8 +23,10 @@ export declare function createSiteToolkit(options: SiteToolkitOptions): {
     hasSanityConfig: boolean;
     getSanityImageUrl(source: BlogPostDocument["coverImage"] | NonNullable<NonNullable<BlogPostDocument["author"]>["image"]> | SitePageDocument["coverImage"] | PortableTextImage | null | undefined, width: number, height: number): string | null;
     getBlogCoverImageUrl(post: Pick<BlogPostDocument, "coverImage">, imageOptions?: AbsoluteImageFallbackOptions): string | null;
+    getBlogBodyImageUrl(source: PortableTextImage | null | undefined, width: number, height: number): string | null;
     getPageCoverImageUrl(page: Pick<SitePageDocument, "coverImage">, imageOptions?: AbsoluteImageFallbackOptions): string | null;
     getPageBodyImageUrl(source: Parameters<typeof getPageBodyImageUrl>[1], width: number, height: number): string | null;
+    normalizeBlogPostBody(blocks: BlogPostDocument["body"] | null | undefined): import("../types/blog.js").PortableTextNode[];
     getBlogPostPlainText: typeof getBlogPostPlainText;
     getSitePagePlainText: typeof getSitePagePlainText;
     getAllBlogPosts(): Promise<import("../types/blog.js").BlogPostSummary[]>;

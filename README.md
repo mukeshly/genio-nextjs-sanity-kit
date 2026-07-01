@@ -141,6 +141,24 @@ The shared query layer and adapter support:
 - image URL generation helpers
 - legacy string categories and referenced category documents
 
+## Genio Publishing Contract
+
+When this kit is used under Genio-driven publishing, the shared publisher now assumes the body content contract is Portable Text, not raw markdown rendered on the frontend.
+
+Current guarantees:
+
+- inline markdown links like `[Read more](/blog/example)` are converted into Portable Text link marks
+- inline HTML anchors like `<a href="/blog/example">Read more</a>` are converted into Portable Text link marks
+- standalone markdown image lines like `![Alt](https://...)` are converted into Portable Text body image blocks
+- cover images and body images remain separate concerns
+- old-slug lookups are supported on the read side
+
+Important boundary:
+
+- the consuming site owns the route base such as `/blog/[slug]`
+- this kit returns slugs and documents, but does not decide whether article URLs live under `/blog`, `/journal`, or another route segment
+- the consuming site must render Portable Text links and `image` blocks correctly
+
 ### 4. Move publish routes to server-only imports
 
 ```ts

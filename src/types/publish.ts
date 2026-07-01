@@ -1,4 +1,4 @@
-import type { PortableTextBlock, PostType } from "./blog.js";
+import type { PortableTextNode, PostType } from "./blog.js";
 
 export type PublishBlogInput = {
   authorName: string;
@@ -79,4 +79,4 @@ export type ValidatedPublishPageInput = Omit<PublishPageInput, "authorRole"> & {
   tags: string[];
 };
 
-export type PortableTextBlocks = PortableTextBlock[];
+export type PortableTextBlocks = PortableTextNode[];

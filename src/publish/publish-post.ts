@@ -1,113 +1,12 @@
 import { createSanityWriteClient } from "../sanity/write-client.js";
 import type {
-  PortableTextBlock,
   PublishBlogInput,
   PublishBlogResult,
   ValidatedPublishBlogInput,
 } from "../types/index.js";
 import { slugify } from "../utils/slugs.js";
+import { markdownToPortableText } from "./portable-text.js";
 import { validatePublishBlogInput } from "./validate-post.js";
-
-function makeKey() {
-  return Math.random().toString(36).slice(2, 12);
-}
-
-function blockSpan(text: string) {
-  return {
-    _key: makeKey(),
-    _type: "span" as const,
-    marks: [],
-    text,
-  };
-}
-
-function textBlock(text: string, style: "normal" | "h2" | "h3" | "blockquote" = "normal") {
-  return {
-    _key: makeKey(),
-    _type: "block" as const,
-    style,
-    markDefs: [],
-    children: [blockSpan(text)],
-  };
-}
-
-function listBlock(text: string, listItem: "bullet" | "number") {
-  return {
-    _key: makeKey(),
-    _type: "block" as const,
-    style: "normal" as const,
-    listItem,
-    level: 1,
-    markDefs: [],
-    children: [blockSpan(text)],
-  };
-}
-
-export function markdownToPortableText(markdown: string): PortableTextBlock[] {
-  const lines = markdown
-    .replace(/\r\n/g, "\n")
-    .split("\n")
-    .map((line) => line.trimEnd());
-  const blocks: PortableTextBlock[] = [];
-  let paragraph: string[] = [];
-
-  const flushParagraph = () => {
-    const text = paragraph.join(" ").trim();
-    if (text) {
-      blocks.push(textBlock(text));
-    }
-    paragraph = [];
-  };
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-
-    if (!line) {
-      flushParagraph();
-      continue;
-    }
-
-    if (line.startsWith("## ")) {
-      flushParagraph();
-      blocks.push(textBlock(line.slice(3).trim(), "h2"));
-      continue;
-    }
-
-    if (line.startsWith("### ")) {
-      flushParagraph();
-      blocks.push(textBlock(line.slice(4).trim(), "h3"));
-      continue;
-    }
-
-    if (line.startsWith("> ")) {
-      flushParagraph();
-      blocks.push(textBlock(line.slice(2).trim(), "blockquote"));
-      continue;
-    }
-
-    if (/^- /.test(line)) {
-      flushParagraph();
-      blocks.push(listBlock(line.slice(2).trim(), "bullet"));
-      continue;
-    }
-
-    if (/^\d+\.\s/.test(line)) {
-      flushParagraph();
-      blocks.push(listBlock(line.replace(/^\d+\.\s/, "").trim(), "number"));
-      continue;
-    }
-
-    paragraph.push(line);
-  }
-
-  flushParagraph();
-
-  if (blocks.length === 0) {
-    throw new Error("bodyMarkdown did not produce any content blocks");
-  }
-
-  return blocks;
-}
 
 async function uploadRemoteImage(env: NodeJS.ProcessEnv, imageUrl: string) {
   const response = await fetch(imageUrl);
@@ -200,7 +99,15 @@ function buildOldSlugs(existing: ExistingPostLookup | null, nextSlug: string) {
 
 async function doPublishBlogPost(env: NodeJS.ProcessEnv, input: ValidatedPublishBlogInput): Promise<PublishBlogResult> {
   const client = createSanityWriteClient(env);
-  const body = markdownToPortableText(input.bodyMarkdown);
+  const body = await markdownToPortableText(input.bodyMarkdown, {
+    uploadImage: async (imageUrl) => {
+      const imageAsset = await uploadRemoteImage(env, imageUrl);
+      return {
+        _type: "reference",
+        _ref: imageAsset._id,
+      };
+    },
+  });
   const imageAsset = await uploadRemoteImage(env, input.coverImageUrl);
   const authorId = await createOrUpdateAuthor(env, input.authorName, input.authorRole);
   const categoryId = await createOrUpdateCategory(env, input.category);

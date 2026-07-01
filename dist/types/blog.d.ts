@@ -6,8 +6,8 @@ export type PortableTextSpan = {
 };
 export type PortableTextMarkDef = {
     _key: string;
-    _type: string;
-    href?: string;
+    _type: "link";
+    href: string;
 };
 export type PortableTextBlock = {
     _key: string;
@@ -22,6 +22,8 @@ export type PortableTextImage = {
     _key: string;
     _type: "image";
     alt?: string;
+    url?: string;
+    _seoImageUrl?: string;
     asset?: {
         _ref: string;
         _type: "reference";
