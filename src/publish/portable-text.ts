@@ -28,8 +28,8 @@ function createLinkMarkDef(href: string): PortableTextMarkDef {
 }
 
 type InlineMatch =
-  | { kind: "markdown-link"; index: number; length: number; text: string; href: string }
-  | { kind: "html-link"; index: number; length: number; text: string; href: string };
+  | { kind: "markdown-link"; index: number; length: number; raw: string; text: string; href: string }
+  | { kind: "html-link"; index: number; length: number; raw: string; text: string; href: string };
 
 const MARKDOWN_LINK_RE = /\[([^\]]+)\]\(([^)]+)\)/g;
 const HTML_LINK_RE = /<a\s+[^>]*href=(["'])(.*?)\1[^>]*>(.*?)<\/a>/gi;
@@ -55,6 +55,7 @@ function getNextInlineMatch(source: string): InlineMatch | null {
       kind: "markdown-link",
       index: markdownMatch.index,
       length: markdownMatch[0].length,
+      raw: markdownMatch[0],
       text: markdownMatch[1],
       href: markdownMatch[2],
     });
@@ -65,6 +66,7 @@ function getNextInlineMatch(source: string): InlineMatch | null {
       kind: "html-link",
       index: htmlMatch.index,
       length: htmlMatch[0].length,
+      raw: htmlMatch[0],
       text: htmlMatch[3],
       href: htmlMatch[2],
     });
@@ -75,6 +77,32 @@ function getNextInlineMatch(source: string): InlineMatch | null {
   }
 
   return candidates.sort((a, b) => a.index - b.index)[0];
+}
+
+function isLinkSeparator(text: string) {
+  return /^[\s,;|/:-]*$/.test(text);
+}
+
+function splitAdjacentLinkOnlyListItem(content: string) {
+  const items: string[] = [];
+  let cursor = 0;
+
+  while (cursor < content.length) {
+    const next = getNextInlineMatch(content.slice(cursor));
+    if (!next) {
+      return items.length > 1 && isLinkSeparator(content.slice(cursor)) ? items : null;
+    }
+
+    const absoluteIndex = cursor + next.index;
+    if (!isLinkSeparator(content.slice(cursor, absoluteIndex))) {
+      return null;
+    }
+
+    items.push(next.raw);
+    cursor = absoluteIndex + next.length;
+  }
+
+  return items.length > 1 ? items : null;
 }
 
 function createInlineChildren(text: string) {
@@ -213,7 +241,25 @@ export async function markdownToPortableText(
 
     if (/^- /.test(line)) {
       await flushParagraph();
-      const { children, markDefs } = createInlineChildren(line.slice(2).trim());
+      const listContent = line.slice(2).trim();
+      const splitItems = splitAdjacentLinkOnlyListItem(listContent);
+      if (splitItems) {
+        for (const item of splitItems) {
+          const { children, markDefs } = createInlineChildren(item);
+          blocks.push({
+            _key: makeKey(),
+            _type: "block",
+            style: "normal",
+            listItem: "bullet",
+            level: 1,
+            markDefs,
+            children,
+          });
+        }
+        continue;
+      }
+
+      const { children, markDefs } = createInlineChildren(listContent);
       blocks.push({
         _key: makeKey(),
         _type: "block",

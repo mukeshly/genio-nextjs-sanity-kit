@@ -43,6 +43,21 @@ test("converts markdown links inside list items into Portable Text marks", async
   assert.equal(listBlocks[1]?.children?.[0]?.text, "Digital Product Strategy Roadmap");
 });
 
+test("splits malformed single bullet lines with multiple adjacent markdown links into separate bullet items", async () => {
+  const body = await markdownToPortableText(
+    "- [Idea To Market Strategy](/idea-to-market-strategy)[Digital Product Strategy Roadmap](/digital-product-strategy-roadmap)[Strategic Product Design Prototyping](/strategic-product-design-prototyping)",
+  );
+
+  const listBlocks = body.filter((block) => block._type === "block" && block.listItem === "bullet");
+  assert.equal(listBlocks.length, 3);
+  assert.equal(listBlocks[0]?.children?.[0]?.text, "Idea To Market Strategy");
+  assert.equal(listBlocks[1]?.children?.[0]?.text, "Digital Product Strategy Roadmap");
+  assert.equal(listBlocks[2]?.children?.[0]?.text, "Strategic Product Design Prototyping");
+  assert.equal(listBlocks[0]?.markDefs?.[0]?.href, "/idea-to-market-strategy");
+  assert.equal(listBlocks[1]?.markDefs?.[0]?.href, "/digital-product-strategy-roadmap");
+  assert.equal(listBlocks[2]?.markDefs?.[0]?.href, "/strategic-product-design-prototyping");
+});
+
 test("converts inline HTML anchor tags into Portable Text marks", async () => {
   const body = await markdownToPortableText(
     'For a deeper dive, read <a href="/strategic-product-design-prototyping">From Concept to Prototype</a> next.',

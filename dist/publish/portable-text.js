@@ -35,6 +35,7 @@ function getNextInlineMatch(source) {
             kind: "markdown-link",
             index: markdownMatch.index,
             length: markdownMatch[0].length,
+            raw: markdownMatch[0],
             text: markdownMatch[1],
             href: markdownMatch[2],
         });
@@ -44,6 +45,7 @@ function getNextInlineMatch(source) {
             kind: "html-link",
             index: htmlMatch.index,
             length: htmlMatch[0].length,
+            raw: htmlMatch[0],
             text: htmlMatch[3],
             href: htmlMatch[2],
         });
@@ -52,6 +54,26 @@ function getNextInlineMatch(source) {
         return null;
     }
     return candidates.sort((a, b) => a.index - b.index)[0];
+}
+function isLinkSeparator(text) {
+    return /^[\s,;|/:-]*$/.test(text);
+}
+function splitAdjacentLinkOnlyListItem(content) {
+    const items = [];
+    let cursor = 0;
+    while (cursor < content.length) {
+        const next = getNextInlineMatch(content.slice(cursor));
+        if (!next) {
+            return items.length > 1 && isLinkSeparator(content.slice(cursor)) ? items : null;
+        }
+        const absoluteIndex = cursor + next.index;
+        if (!isLinkSeparator(content.slice(cursor, absoluteIndex))) {
+            return null;
+        }
+        items.push(next.raw);
+        cursor = absoluteIndex + next.length;
+    }
+    return items.length > 1 ? items : null;
 }
 function createInlineChildren(text) {
     const children = [];
@@ -150,7 +172,24 @@ export async function markdownToPortableText(markdown, options = {}) {
         }
         if (/^- /.test(line)) {
             await flushParagraph();
-            const { children, markDefs } = createInlineChildren(line.slice(2).trim());
+            const listContent = line.slice(2).trim();
+            const splitItems = splitAdjacentLinkOnlyListItem(listContent);
+            if (splitItems) {
+                for (const item of splitItems) {
+                    const { children, markDefs } = createInlineChildren(item);
+                    blocks.push({
+                        _key: makeKey(),
+                        _type: "block",
+                        style: "normal",
+                        listItem: "bullet",
+                        level: 1,
+                        markDefs,
+                        children,
+                    });
+                }
+                continue;
+            }
+            const { children, markDefs } = createInlineChildren(listContent);
             blocks.push({
                 _key: makeKey(),
                 _type: "block",
